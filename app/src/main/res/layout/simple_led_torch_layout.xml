@@ -1,0 +1,15 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:id="@+id/simple_led_torch_widget"
+    android:clickable="true"
+    android:layout_height="match_parent"
+    android:background="@android:color/holo_blue_bright">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/imageView"
+        android:layout_gravity="center_horizontal"
+        android:src="@drawable/ic_star_outline_black"
+        android:clickable="true" />
+</LinearLayout>

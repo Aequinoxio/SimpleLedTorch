@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <PreferenceCategory android:title="@string/startup_category_title" >
+        <CheckBoxPreference
+            android:key="@string/startup_preference"
+            android:title="@string/startup_checkbox_title"
+            android:defaultValue="@string/pref_startup_default">
+        </CheckBoxPreference>
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/shake_category_title" >
+        <CheckBoxPreference
+            android:key="@string/shake_preference"
+            android:title="@string/shake_checkbox_title"
+            android:defaultValue="@string/pref_shake_default">
+            <!--android:summary="Shake sommario">-->
+        </CheckBoxPreference>
+
+        <ListPreference
+            android:key="@string/pref_number_shakes"
+            android:dependency="@string/shake_preference"
+            android:defaultValue="@string/pref_number_shakes_default"
+            android:title="@string/pref_number_shakes_title"
+            android:dialogTitle="@string/pref_number_shakes_summary"
+            android:entries="@array/pref_number_shakes"
+            android:entryValues="@array/pref_number_shakes_values"
+            />
+
+        <ListPreference
+            android:dependency="@string/shake_preference"
+            android:key="@string/pref_shake_window"
+            android:defaultValue="@string/pref_shake_window_default"
+            android:title="@string/pref_shake_window_title"
+            android:dialogTitle="@string/pref_shake_window_summary"
+            android:entries="@array/pref_shake_window_entry"
+            android:entryValues="@array/pref_shake_window_values"
+            android:summary="@string/pref_shake_window_summary" />
+
+        <ListPreference
+            android:dependency="@string/shake_preference"
+            android:key="@string/pref_shake_debounce"
+            android:defaultValue="@string/pref_shakes_debounce_default"
+            android:title="@string/pref_shake_debounce_title"
+            android:dialogTitle="@string/pref_shakes_debounce_summary"
+            android:entries="@array/pref_shakes_debounce_entry"
+            android:entryValues="@array/pref_shakes_debounce_values"
+            android:summary="@string/pref_shakes_debounce_summary" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/shake_category_developer_title" >
+        <CheckBoxPreference
+            android:key="acra.enable"
+            android:title="@string/acra_enable"
+            android:defaultValue="@string/pref_disable_crash_default">
+            <!--android:summary="Crash Report"-->
+        </CheckBoxPreference>
+
+    </PreferenceCategory>
+</PreferenceScreen>

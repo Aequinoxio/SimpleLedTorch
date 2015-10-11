@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="intentMainActivity">1024</integer>
+</resources>
