@@ -1,0 +1,10 @@
+TODO: TO DO List
+----------
+1 - aggiungere un widget per far accendere e spegnere il led
+2 - aggiungere una notifica ed una icona per dire che il widget è attivo e che accenderà e spegnerà il led
+3 - agiungere nella notifica un pulsante per far aprire i settings
+4 - migliorare la grafica
+
+??? - attivare un servizio ???? (da valutare se è utile)
+
+

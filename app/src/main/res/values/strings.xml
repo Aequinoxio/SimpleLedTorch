@@ -4,6 +4,7 @@
 
     <string name="TextInfoContentShake">Shake\nor\npush me</string>
     <string name="TextInfoContentNoShake">\nPush me\n</string>
+    <string name="TextInfoContentNoTouch">\nTouch disabled\n</string>
 
     <string name="buttonFlashLabel2">Turn on the led</string>
     <!--<string name="togglebuttonLenOff">Led ON</string>-->
@@ -53,4 +54,6 @@
     <string name="action_settings">Settings</string>
 
     <string name="action_shake_menu">Shake Menu</string>
+    <string name="action_touch_menu">Touch Menu</string>
+
 </resources>

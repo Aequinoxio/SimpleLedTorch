@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.hardware.Camera;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
@@ -19,8 +20,11 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+
+import org.w3c.dom.Text;
 
 import java.util.logging.Logger;
 
@@ -39,6 +43,7 @@ public class FullscreenActivity extends AppCompatActivity implements ShakeEventM
     private boolean isCameraAvailable=false;
 
     private boolean pauseFromMenuSettings =false;
+    private boolean changeOrientation;
 
     // Variabili per gestire il menu. Per ora non ho trovato di meglio. Il meglio sarebbe poter recuperare il menu
     // a partire dall'id e quindi l'itemMenu
@@ -79,6 +84,11 @@ public class FullscreenActivity extends AppCompatActivity implements ShakeEventM
 
         Log.d("***FullScreenActivity", "onCreate");
 
+        // Imposto i default values se non è mai stato chiamato
+        PreferenceManager.setDefaultValues(this, R.xml.application_preference, false);
+
+        applicationSettings.readPreferencesValues(this);
+
         // Avvio tutto ma non registro il sensore
         shakeEventManager = new ShakeEventManager();
         shakeEventManager.setListener(this);
@@ -88,10 +98,6 @@ public class FullscreenActivity extends AppCompatActivity implements ShakeEventM
         isCameraAvailable = isCameraSupported(getApplicationContext().getPackageManager());
         isFlashAvailable = isFlashSupported(getApplicationContext().getPackageManager());
 
-        // Imposto i default values se non è mai stato chiamato
-        PreferenceManager.setDefaultValues(this, R.xml.application_preference, false);
-
-        applicationSettings.readPreferencesValues(this);
         // Se devo avviare il led all'inizio dell'app lo faccio subito
 //        boolean restartFromRotation = savedInstanceState!=null &&
 //                savedInstanceState.getBoolean(restartFromRotationKey, false);
@@ -115,22 +121,59 @@ public class FullscreenActivity extends AppCompatActivity implements ShakeEventM
 
     @Override
     public void onSaveInstanceState(Bundle outState){
+        Log.d("***FullScreenActivity", "onSaveInstanceState");
+
+        // Se ruoto il cellulare salvo lo stato del led - altrimenti ricomincio
+        if (changeOrientation) {
+            outState.putBoolean(restartFromRotationKey, toggleLedIsOff);
+        }
+        else {
+            outState.putBoolean(restartFromRotationKey, applicationSettings.isLightOnAtStartup());
+        }
+
+        // Chiamo alla fine in accordo all'esempio presente in
+        // http://developer.android.com/training/basics/activity-lifecycle/recreating.html
         super.onSaveInstanceState(outState);
-        // Se ruoto il cellulare salvo lo stato del led
-        outState.putBoolean(restartFromRotationKey, toggleLedIsOff);
+    }
+
+    @Override
+    public void onStart(){
+        super.onStart();
+        Log.d("***FullScreenActivity", "onStart");
+
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle outState){
+        super.onRestoreInstanceState(outState);
+        if (changeOrientation) {
+            toggleLedIsOff = outState.getBoolean(restartFromRotationKey, false);
+            startStopLed(toggleLedIsOff);
+        }
+        Log.d("***FullScreenActivity", "onRestoreInstanceState");
     }
 
     @Override
     public void onConfigurationChanged(Configuration configuration){
         super.onConfigurationChanged(configuration);
+        Log.d("***FullScreenActivity", "onConfigurationChanged");
 
         switch (configuration.orientation){
             case Configuration.ORIENTATION_PORTRAIT :
 
             case Configuration.ORIENTATION_LANDSCAPE:
+                changeOrientation=true;
+                TextView textView = (TextView) findViewById(R.id.fullscreen_content);
+                // Prelevo lo stato del touch button prima di impostare il nuovo layout
+                boolean isButtonDisabled=textView.isClickable();
                 setContentView(R.layout.activity_fullscreen);
+                // Recupero il bottone e reimposto lo stato
+                textView = (TextView) findViewById(R.id.fullscreen_content);
+                textView.setClickable(isButtonDisabled);
                 updateUI();
                 break ;
+            default:
+                changeOrientation=false;
         }
     }
 
@@ -153,17 +196,24 @@ public class FullscreenActivity extends AppCompatActivity implements ShakeEventM
 //            releaseCameraInstance();
 //        }
 
-        shakeEventManager.deregisterSensor();
-        releaseCameraInstance();
-        toggleLedIsOff=true;    // Consistenza dell'UI
-
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageFromServiceReceiver);
+//        shakeEventManager.deregisterSensor();
+//        releaseCameraInstance();
+//        toggleLedIsOff=true;    // Consistenza dell'UI
+//
+//        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageFromServiceReceiver);
     }
 
     @Override
     public void onStop(){
         super.onStop();
         Log.d("***FullScreenActivity", "onStop");
+
+        shakeEventManager.deregisterSensor();
+        releaseCameraInstance();
+        toggleLedIsOff=true;    // Consistenza dell'UI
+
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageFromServiceReceiver);
+
     }
 
     @Override
@@ -188,6 +238,7 @@ public class FullscreenActivity extends AppCompatActivity implements ShakeEventM
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+        Log.d("***FullScreenActivity", "onOptionsItemSelected");
 
 
         //noinspection SimplifiableIfStatement
@@ -227,6 +278,16 @@ public class FullscreenActivity extends AppCompatActivity implements ShakeEventM
             updateUI();
         }
 
+        if (id == R.id.action_touch_menu){
+            TextView textView= (TextView) findViewById(R.id.fullscreen_content);
+            if (textView.isClickable()){
+                textView.setClickable(false);
+            } else {
+                textView.setClickable(true);
+            }
+            updateUI();
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -234,6 +295,7 @@ public class FullscreenActivity extends AppCompatActivity implements ShakeEventM
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
+        Log.d("***FullScreenActivity", "onPostCreate");
 
         // Trigger the initial hide() shortly after the activity has been
         // created, to briefly hint to the user that UI controls
@@ -412,14 +474,7 @@ public class FullscreenActivity extends AppCompatActivity implements ShakeEventM
         super.onResume();
         Log.d("***FullScreenActivity", "onResume");
 
-        applicationSettings.readPreferencesValues(this);
-//        if (pauseFromMenuSettings) {
-//            shakeEventManager.deregisterSensor();
-//            releaseCameraInstance();
-//        }
-
-//        if (!pauseFromMenuSettings)
-//            startStopLed(null);
+        applicationSettings.readPreferencesValues(getApplicationContext());
 
 //        TODO: da rivedere. caso pratico: parto da zero con unckecked per shake mode
 //                se lo imposto e torno indietro non sente lo shake
@@ -434,7 +489,14 @@ public class FullscreenActivity extends AppCompatActivity implements ShakeEventM
         // Ripristino il default
         pauseFromMenuSettings=false;
 
-  //    Test per le preferenze di invio
+        if (!toggleLedIsOff)
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageFromServiceReceiver,
+                new IntentFilter("AggiornaInterfaccia"));
+
+        updateUI();
+
+        //    Test per le preferenze di invio
 //        ACRA.getErrorReporter().handleSilentException(new Throwable("Test send Crash report"));
 //        if (BuildConfig.DEBUG){
 //            TextView t = (TextView)findViewById(R.id.textView);
@@ -445,46 +507,54 @@ public class FullscreenActivity extends AppCompatActivity implements ShakeEventM
 //            t.setText(String.format("Shake debounce:%d", applicationSettings.getShakesDebounceWindow()));
 //            t.setText(applicationSettings.isSendCrashReportPossibile()?"SI":"NO");
 //        }
-
-        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageFromServiceReceiver,
-                new IntentFilter("AggiornaInterfaccia"));
-
-//        initUI();
-        updateUI();
     }
 
 
     private void updateUI(){
+        TextView textView;
         if (menuShake != null){
             itemShake=menuShake.findItem(R.id.action_shake_menu);
             itemShake.setIcon(applicationSettings.isShakeSelected()?
                     R.drawable.ic_radio_button_on_white_24dp:
                     R.drawable.ic_radio_button_off_white_24dp
             );
+
+            itemShake=menuShake.findItem(R.id.action_touch_menu);
+            textView = (TextView) findViewById(R.id.fullscreen_content);
+            itemShake.setIcon(textView.isClickable() ?
+                            R.drawable.ic_lock_open_white_24dp:
+                            R.drawable.ic_lock_white_24dp
+            );
         }
 
-        TextView textView=(TextView) findViewById(R.id.textViewShakeOnOff);
+        textView=(TextView) findViewById(R.id.textViewShakeOnOff);
+
+        String textString="";
         if (applicationSettings.isShakeSelected()){
             textView.setText(R.string.ShakeOn);
             textView=(TextView) findViewById(R.id.fullscreen_content);
-            textView.setText(R.string.TextInfoContentShake);
+            textString= textView.isClickable()? getString(R.string.TextInfoContentShake):getString(R.string.TextInfoContentNoTouch);
         } else {
             textView.setText(R.string.ShakeOff);
             textView=(TextView) findViewById(R.id.fullscreen_content);
-            textView.setText(R.string.TextInfoContentNoShake);
+            textString= textView.isClickable()? getString(R.string.TextInfoContentNoShake):getString(R.string.TextInfoContentNoTouch);
         }
+        textView.setText(textString);
 
         textView =(TextView) findViewById(R.id.fullscreen_content);
         FrameLayout frameLayout= (FrameLayout) findViewById(R.id.frameLayoutStatusLed);
-        if (toggleLedIsOff){
+
+        if (toggleLedIsOff) {
             textView.setBackgroundResource(R.drawable.button_colorblue);
-            frameLayout.setBackgroundColor(Color.argb(0, 0, 0x99, 0xcc) );
-        } else{
+            frameLayout.setBackgroundColor(Color.argb(0, 0, 0x99, 0xcc));
+        } else {
             textView.setBackgroundResource(R.drawable.button_colored);
             frameLayout.setBackgroundColor(Color.RED);
         }
 
-
+        if (!textView.isClickable()) {
+            textView.setBackground(null);
+        }
     }
 
     private void initUI(){

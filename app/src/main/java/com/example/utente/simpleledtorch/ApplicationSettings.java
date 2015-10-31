@@ -54,8 +54,22 @@ enum ApplicationSettings {
         editor.commit();
     }
 
+    /**
+     * Verifica se nelle preference lo shake è on
+     * @return true se shake impostato
+     */
     public boolean isShakeSelected(){return isShakeSelected;}
+
+    /**
+     * Verifica se posso inviare il report
+     * @return True se posso inviare il report
+     */
     public boolean isSendCrashReportPossibile(){return isSendCrashReportPossibile;}
+
+    /**
+     * Verifico se da preferenze devo accendere il led
+     * @return true se devo accendere il led
+     */
     public boolean isLightOnAtStartup(){return isLightOnAtStartup;}
     public int getShakeNumbers(){return shakeNumbers;}
     public int getShakesWindow(){return shakesWindow;}

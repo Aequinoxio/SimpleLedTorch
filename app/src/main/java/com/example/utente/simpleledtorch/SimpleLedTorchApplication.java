@@ -23,9 +23,9 @@ import org.acra.sender.HttpSender;
 @ReportsCrashes(
         httpMethod = HttpSender.Method.PUT,
         reportType = HttpSender.Type.JSON,
-        formUri = "http://pippokennedy.iriscouch.com/acra-simpleledtorch/_design/acra-storage/_update/report",
-        formUriBasicAuthLogin = "pippo",
-        formUriBasicAuthPassword = "kennedy",
+        formUri = "https://pippokennedy.cloudant.com/acra-simpleledtorch/_design/acra-storage/_update/report",
+        formUriBasicAuthLogin = "thernadrentandwasideadti",
+        formUriBasicAuthPassword = "282047e002ec98f34466f4eb62fb6ee0efd0348f",
 
         customReportContent = {
                 // Campi obblicatori per acralyzer

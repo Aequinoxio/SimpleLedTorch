@@ -46,6 +46,12 @@
                 <!--android:resource="@xml/simple_led_torch_widget" />-->
         <!--</receiver>-->
 
+        <!--<receiver android:name=".SimpleLedTorchWidgetReceiver">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="COM_FLASHLIGHT"></action>-->
+            <!--</intent-filter>-->
+        <!--</receiver>-->
+
         <activity
             android:name=".MySettingsActivity"
             android:label="@string/title_activity_settings" >

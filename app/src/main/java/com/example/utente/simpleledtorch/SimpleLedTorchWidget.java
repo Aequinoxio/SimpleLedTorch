@@ -10,6 +10,9 @@ import android.widget.RemoteViews;
 
 /**
  * Created by utente on 03/10/2015.
+ *
+ * TODO: da implementare. La logica è: al click sul widget accendo il led.
+ * TODO: Verificare se il widget permette l'accension edel led anche da lockscreen
  */
 
 // TODO: al click accendere/spegnere il led ed aggiornare l'immagine sul widget
@@ -32,6 +35,7 @@ public class SimpleLedTorchWidget extends AppWidgetProvider {
                 appWidgetManager.getAppWidgetInfo(appWidgetId).initialLayout);
         Intent launchActivity = new Intent(context, FullscreenActivity.class);
 
+        //launchActivity.setAction("COM_FLASHLIGHT");
         // Imposto i flag per evitare di aprire nuovamente l'attività: mi serve di riaprirne solo una
         launchActivity.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 

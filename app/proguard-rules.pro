@@ -16,6 +16,12 @@
 #   public *;
 #}
 
+
+#-keep class org.apache.http.** { *; }
+#-keep class android.content.** { *; }
+#-dontwarn org.apache.http.**
+#-dontwarn android.net.**
+
 #ACRA specifics - BY GAB
 # Restore some Source file names and restore approximate line numbers in the stack traces,
 # otherwise the stack traces are pretty useless
