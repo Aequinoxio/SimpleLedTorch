@@ -19,8 +19,8 @@
     <string name="title_activity_settings">Settings</string>
 
     <!-- PREFERENCES SECTION -->
-    <string name="acra_enable">Send crash report to developer</string>
-    <string name="crash_preference">Send report crash</string>
+    <string name="acra_enable">Send crash report</string>
+    <string name="crash_preference">Send crash report</string>
     <string name="pref_disable_crash_default">true</string>
 
     <string name="shake_preference">shake_preference</string>

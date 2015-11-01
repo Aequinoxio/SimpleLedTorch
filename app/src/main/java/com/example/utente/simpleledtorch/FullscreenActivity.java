@@ -43,6 +43,7 @@ public class FullscreenActivity extends AppCompatActivity implements ShakeEventM
     private boolean isCameraAvailable=false;
 
     private boolean pauseFromMenuSettings =false;
+    private boolean pauseLedStatus = false;
     private boolean changeOrientation;
 
     // Variabili per gestire il menu. Per ora non ho trovato di meglio. Il meglio sarebbe poter recuperare il menu
@@ -98,15 +99,12 @@ public class FullscreenActivity extends AppCompatActivity implements ShakeEventM
         isCameraAvailable = isCameraSupported(getApplicationContext().getPackageManager());
         isFlashAvailable = isFlashSupported(getApplicationContext().getPackageManager());
 
-        // Se devo avviare il led all'inizio dell'app lo faccio subito
-//        boolean restartFromRotation = savedInstanceState!=null &&
-//                savedInstanceState.getBoolean(restartFromRotationKey, false);
+//        // Se devo avviare il led all'inizio dell'app lo faccio subito
+//        if (applicationSettings.isLightOnAtStartup()){
+//            startStopLed(true);
+//        }
 
-        if (applicationSettings.isLightOnAtStartup()){
-            startStopLed(true);
-        }
-
-        setToggleLedIsOff();
+        //setToggleLedIsOff();
 
         // Imposto l'UI
         ActionBar actionBar = getSupportActionBar();
@@ -244,6 +242,7 @@ public class FullscreenActivity extends AppCompatActivity implements ShakeEventM
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             pauseFromMenuSettings = true;
+            pauseLedStatus=!toggleLedIsOff; // LA logica è invertita in quanto passerò questo valore per accendere il led -> se toggleLedIsOff è true allora devo passare false
             Intent intent = new Intent(this, MySettingsActivity.class);
             startActivity(intent);
             return true;
@@ -402,8 +401,10 @@ public class FullscreenActivity extends AppCompatActivity implements ShakeEventM
 
     ///////////////
     public void releaseCameraInstance(){
-        if (cam!=null)
+        if (cam!=null) {
             cam.release();
+            cam=null;
+        }
     }
 
     private void setToggleLedIsOff(){
@@ -452,7 +453,7 @@ public class FullscreenActivity extends AppCompatActivity implements ShakeEventM
             p.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
             cam.setParameters(p);
             cam.stopPreview();
-            cam.release();
+            releaseCameraInstance();
         }
 
         toggleLedIsOff= p.getFlashMode().equals(Camera.Parameters.FLASH_MODE_OFF);
@@ -476,8 +477,18 @@ public class FullscreenActivity extends AppCompatActivity implements ShakeEventM
 
         applicationSettings.readPreferencesValues(getApplicationContext());
 
-//        TODO: da rivedere. caso pratico: parto da zero con unckecked per shake mode
-//                se lo imposto e torno indietro non sente lo shake
+        // Se devo avviare il led all'inizio dell'app lo faccio subito
+        toggleLedIsOff=true;
+
+        if (pauseFromMenuSettings){
+            toggleLedIsOff=pauseLedStatus;
+            startStopLed(pauseLedStatus);
+        } else if (applicationSettings.isLightOnAtStartup()){
+            startStopLed(true);
+            toggleLedIsOff=false;
+        }
+        // Ripristino il default
+        pauseFromMenuSettings=false;
 
         // Se non ritorno dalla settings activity allora reimposto tutto
         if (applicationSettings.isShakeSelected()) {
@@ -486,10 +497,7 @@ public class FullscreenActivity extends AppCompatActivity implements ShakeEventM
             shakeEventManager.deregisterSensor();
         }
 
-        // Ripristino il default
-        pauseFromMenuSettings=false;
-
-        if (!toggleLedIsOff)
+        //if (!toggleLedIsOff)
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageFromServiceReceiver,
                 new IntentFilter("AggiornaInterfaccia"));
